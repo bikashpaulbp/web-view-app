@@ -34,7 +34,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.WEB_VIEW,
-      page: () => const WebViewView(),
+      page: () => WebViewView(),
       binding: WebViewBinding(),
     ),
   ];

@@ -4,6 +4,11 @@ class HomeController extends GetxController {
   //TODO: Implement HomeController
 
   final count = 0.obs;
+
+  String pin = "162345";
+
+  RxString tapSum = "".obs;
+
   @override
   void onInit() {
     super.onInit();
