@@ -1,31 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-
 import 'package:get/get.dart';
-
 import '../controllers/web_view_controller.dart';
 
-// ignore: must_be_immutable
 class WebViewView extends GetView<WebViewController> {
   String? uri = "";
 
   WebViewView({this.uri, Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    double progressIndicatior = 0;
-    
+    double progressIndicator = 0;
+
     late InAppWebViewController inAppWebViewController;
 
     return WillPopScope(
       onWillPop: () async {
-        var isLastPage = await inAppWebViewController.canGoBack();
-
-        if (isLastPage) {
+        var canGoBack = await inAppWebViewController.canGoBack();
+        if (canGoBack) {
           inAppWebViewController.goBack();
-
           return false;
         }
-
         return true;
       },
       child: Scaffold(
@@ -43,15 +38,21 @@ class WebViewView extends GetView<WebViewController> {
                 },
                 onProgressChanged: (InAppWebViewController controller, int progress) {
                   setState(() {
-                    progressIndicatior = progress / 100;
+                    progressIndicator = progress / 100;
                   });
                 },
+                initialSettings: InAppWebViewSettings(
+                  mediaPlaybackRequiresUserGesture: false, // Allows automatic media playback
+                  allowsInlineMediaPlayback: true, // Allows inline playback on iOS
+                ),
+                onPermissionRequest: (controller, request) async {
+                  return PermissionResponse(
+                    resources: request.resources,
+                    action: PermissionResponseAction.GRANT,
+                  );
+                },
               ),
-              progressIndicatior < 1
-                  ? Container(
-                      child: LinearProgressIndicator(value: progressIndicatior),
-                    )
-                  : SizedBox(),
+              progressIndicator < 1 ? LinearProgressIndicator(value: progressIndicator) : SizedBox(),
             ],
           ),
         ),

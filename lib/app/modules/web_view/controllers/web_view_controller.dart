@@ -1,4 +1,6 @@
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:web_view/app/modules/web_view/views/audio_focus_manager.dart';
 
 class WebViewController extends GetxController {
   //TODO: Implement WebViewController
@@ -7,6 +9,7 @@ class WebViewController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _requestAudioFocus();
   }
 
   @override
@@ -19,5 +22,11 @@ class WebViewController extends GetxController {
     super.onClose();
   }
 
-  void increment() => count.value++;
+  Future<void> _requestAudioFocus() async {
+    try {
+      await AudioFocusManager.requestAudioFocus();
+    } on PlatformException catch (e) {
+      print('Error requesting audio focus: $e');
+    }
+  }
 }
