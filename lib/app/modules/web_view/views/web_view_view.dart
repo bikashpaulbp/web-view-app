@@ -3,6 +3,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 import '../controllers/web_view_controller.dart';
 
+// ignore: must_be_immutable
 class WebViewView extends GetView<WebViewController> {
   String? uri = "";
 
@@ -32,25 +33,25 @@ class WebViewView extends GetView<WebViewController> {
           builder: (BuildContext context, setState) => Stack(
             children: [
               InAppWebView(
+                keepAlive: InAppWebViewKeepAlive(),
                 initialUrlRequest: URLRequest(url: WebUri(uri!)),
                 onWebViewCreated: (InAppWebViewController controller) {
                   inAppWebViewController = controller;
                 },
-                onProgressChanged: (InAppWebViewController controller, int progress) {
-                  setState(() {
-                    progressIndicator = progress / 100;
-                  });
+                onLoadStop: (controller, url) async {
+                  await controller.evaluateJavascript(source: """
+      document.addEventListener('visibilitychange', function() {
+        var video = document.querySelector('video');
+        if (video && document.visibilityState === 'hidden') {
+          video.play();
+        }
+      });
+    """);
                 },
                 initialSettings: InAppWebViewSettings(
-                  mediaPlaybackRequiresUserGesture: false, // Allows automatic media playback
-                  allowsInlineMediaPlayback: true, // Allows inline playback on iOS
+                  mediaPlaybackRequiresUserGesture: false,
+                  allowsInlineMediaPlayback: true,
                 ),
-                onPermissionRequest: (controller, request) async {
-                  return PermissionResponse(
-                    resources: request.resources,
-                    action: PermissionResponseAction.GRANT,
-                  );
-                },
               ),
               progressIndicator < 1 ? LinearProgressIndicator(value: progressIndicator) : SizedBox(),
             ],
